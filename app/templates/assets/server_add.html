@@ -1,0 +1,212 @@
+{# -- extend base layout -#}
+{% extends "base.html" %}
+
+{% block content %}
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">服务器管理</h2>
+        </div>
+        <!-- /.col-lg-12 -->
+        <div class="col-lg-12">
+            {% include 'flash.html' %}
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="dropdown pull-right">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Menu <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="/assets/server">服务器列表</a></li>
+                            <li><a href="/assets/server_salt_import">salt服务器导入</a></li>
+                        </ul>
+                    </div>
+                    <h3 class="panel-title"><i class="fa fa-truck fa-fw"></i> 服务器添加</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <form method="post" action="/assets/server/add" class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">主机名：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.host(class="form-control") }}
+                                        {% for error in form.errors.host %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">资产编号：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.assetsnumber(class="form-control") }}
+                                        {% for error in form.errors.assetsnumber %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">设备编号：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.serialnumber(class="form-control") }}
+                                        {% for error in form.errors.serialnumber %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">系统版本：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.osrelease(class="form-control") }}
+                                        {% for error in form.errors.osrelease %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">CPU型号：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.cpu_model(class="form-control") }}
+                                        {% for error in form.errors.cpu_model %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">CPU核数：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.cpu_num(class="form-control") }}
+                                        {% for error in form.errors.cpu_num %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">内存大小：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.mem_total(class="form-control") }}
+                                        {% for error in form.errors.mem_total %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">机房编号：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.idc_code(class="form-control") }}
+                                        {% for error in form.errors.idc_code %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">机柜编号：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.rack_code(class="form-control") }}
+                                        {% for error in form.errors.rack_code %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">IP地址：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.ip(class="form-control") }}
+                                        {% for error in form.errors.ip %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                        <p class="help-block">格式：192.168.0.11,192.168.0.11</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">VIP地址：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.vip(class="form-control") }}
+                                        {% for error in form.errors.vip %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                        <p class="help-block">格式：192.168.10.11,192.168.10.11</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">角色：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.roles(class="form-control") }}
+                                        {% for error in form.errors.roles %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                        <p class="help-block">格式：nginx,squid,fpm</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">BIOS版本：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.biosversion(class="form-control") }}
+                                        {% for error in form.errors.biosversion %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">厂商：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.manufacturer(class="form-control") }}
+                                        {% for error in form.errors.manufacturer %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">设备型号：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.productname(class="form-control") }}
+                                        {% for error in form.errors.productname %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">状态：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.status(class="form-control") }}
+                                        {% for error in form.errors.status %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">备注：</label>
+                                    <div class="col-sm-10">
+                                        {{ form.desc(class="form-control") }}
+                                        {% for error in form.errors.desc %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-2">
+                                    </div>
+                                    <div class="col-sm-10">
+                                        <button type="submit" class="btn btn-default">添加</button>&nbsp;&nbsp;
+                                        <button type="reset" class="btn btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.col-lg-6 (nested) -->            
+                    </div>
+                    <!-- /.row (nested) -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+</div>
+{% endblock %}

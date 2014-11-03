@@ -1,0 +1,109 @@
+{# -- extend base layout -#}
+{% extends "base.html" %}
+
+{% block extcss %}
+    <link href="{{ url_for('static', filename = 'css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">项目模块管理</h2>
+        </div>
+        <!-- /.col-lg-12 -->
+        <div class="col-lg-12">
+            {% include 'flash.html' %}
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+   <!-- /.row -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="dropdown pull-right">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Menu <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="/project/module/add">项目模块添加</a></li>
+                        </ul>
+                    </div>
+                    <h3 class="panel-title"><i class="fa fa-sitemap fa-fw"></i> 项目模块列表</h3>
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="module_list">
+                            <thead>
+                                <tr>
+                                    <th>模块名称</th>
+                                    <th>模块类型</th>
+                                    <th>服务器列表</th>
+                                    <th>部署脚本</th>
+                                    <th>备注</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for module in modules %}
+                                <tr class="odd gradeX">
+                                  <td>{{module["module_name"]}}</td>
+                                  <td>{{module["module_type"]}}</td>
+                                  <td>{{','.join(module["host_list"])}}</td>
+                                  <td>{{module["deploy_script"]}}</td>
+                                  <td>{{module["desc"]}}</td>
+                                  <td><a href="edit_{{module["_id"]}}" class="btn btn-success btn-xs" role="button">编辑</a>
+                                      <button class="btn btn-success btn-xs" data-toggle="modal" data-target="#delmodule_{{module["_id"]}}">删除</button>
+                                  </td>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="delmodule_{{module["_id"]}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        <h4 class="modal-title" id="myModalLabel">确认删除模块</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        删除模块<b>{{module["module_name"]}}</b>，将不能还原，确认删除吗？？
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a href="del_{{module["_id"]}}" class="btn btn-danger" role="button">删除</a>&nbsp;&nbsp;
+                                                        <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+                                                    </div>
+                                                </div>
+                                                <!-- /.modal-content -->
+                                            </div>
+                                            <!-- /.modal-dialog -->
+                                        </div>
+                                        <!-- /.modal -->
+                                </tr>
+                                {% endfor%}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.table-responsive -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+</div>
+{% endblock %}
+
+{% block extjs %}
+    <script src="{{ url_for('static', filename = 'js/plugins/dataTables/jquery.dataTables.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
+{% endblock %}
+
+{% block extscript %}
+<script>
+$(document).ready(function() {
+    $('#module_list').dataTable({
+        "bJQueryUI": true
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,311 @@
+{# -- extend base layout -#}
+{% extends "base.html" %}
+
+{% block content %}
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">项目管理</h2>
+        </div>
+        <!-- /.col-lg-12 -->
+        <div class="col-lg-12">
+            {% include 'flash.html' %}
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+   <!-- /.row -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="dropdown pull-right">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Menu <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="">未定链接</a></li>
+                        </ul>
+                    </div>
+                    <h3 class="panel-title"><i class="fa fa-sitemap fa-fw"></i> OPS部署</h3>
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>选择项目：</label>
+                                <button type="button" id="project_add" class="btn btn-primary">添加项目</button>
+                                <p class="help-block"></p>
+                                <select class="form-control" id="project_list" multiple name="project_list" size="5">
+                                </select>
+                                <p class="help-block">双击展开相应的项目模块到模块列表</p>
+                            </div>
+                        </div>
+                        <!-- /.col-lg-2 -->
+                        
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>选择模块：</label>
+                                <button type="button" id="module_add" class="btn btn-primary">添加模块</button>
+                                <p class="help-block"></p>
+                                <select class="form-control" id="module_list" multiple name="module_list" size="5">
+                                </select>
+                                <p class="help-block">双击模块名称添加模块到部署列表中</p>
+                            </div>
+                        </div>
+                        <!-- /.col-lg-2 -->
+                        
+                        <div class="col-lg-8">
+                            <div class="form-group">
+                                <label>选择部署任务：</label>
+                                <select id="task_list" class="form-control">
+                                    <option value="deploy-task1">部署任务1</option>
+                                    <option value="deploy-task2">部署任务2</option>
+                                </select>
+                                <p class="help-block"></p>
+                                <button type="button" id="ops_deploy" class="btn btn-success btn-lg">开始部署</button>
+                                <p class="help-block">拖动模块面板调整部署顺序，重复模块只会提交一次。</p>
+                            </div>
+                        </div>
+                        <!-- /.col-lg-8 -->
+                    </div>
+                    <!-- /.row -->
+                    
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>部署列表：</label><span class="help">双击模块面板将删除相应的模块</span>
+                                <ul id="draggablePanelList" class="list-unstyled">
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- /.col-lg-4 -->
+                        <div class="col-lg-8">
+                            <div class="form-group">
+                                <label>部署结果：</label>
+                                <img id="loading" style="display:none" src="{{ url_for('static', filename = 'image/indicator.gif') }}"/>
+                                <ul id="requestList" class="list-unstyled">
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- /.col-lg-8 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+</div>
+{% endblock %}
+
+{% block extjs %}
+    <script src="{{ url_for('static', filename = 'js/jquery-ui-1.10.4.min.js') }}"></script>
+{% endblock %}
+
+{% block extscript %}
+<script>
+$(function() {
+    var panelList = $('#draggablePanelList');
+    var requestList = $('#requestList');
+    panelList.sortable({
+        // Only make the .panel-heading child elements support dragging.
+        // Omit this to make then entire <li>...</li> draggable.
+        handle: '.panel-heading', 
+        update: function() {
+            $('.panel', panelList).each(function(index, elem) {
+                var $listItem = $(elem),
+                newIndex = $listItem.index();
+                // Persist the new indices.
+            });
+        }
+    });
+
+    panelList.delegate(".panel-heading", "dblclick", function() {
+        $(this).parent().remove();
+    });
+    
+    function Add_li(module_name){
+        deploy_list = panelList.children(".panel");
+        mo_list = [];
+        $.each( deploy_list, function(index, content){
+            mo_list.push(content.id);
+        });
+        if(mo_list.indexOf(module_name) == -1){
+            re = '<li id='+ module_name +' class="panel panel-info">';
+            re += '<div class="panel-heading">'+module_name+'</div>';
+            re += '<div class="panel-body input-group"><input type="text" id='+ module_name +' class="form-control" placeholder="请输入版本号"><span class="input-group-addon">格式: 1.2branch1180</span></div>';
+            re += '</li>';
+            panelList.append(re);
+        }else{
+            alert("添加模块"+module_name+"重复。");
+        }
+        //return re;
+    }
+
+    var project_json = {};
+    var module_json = {};
+    var project_list = {};
+    var module_list = {};
+
+    //get ops json data
+    $.ajax({
+        type: "GET",
+        async: false,
+        url: "/project/ops/deploy_json",
+        contentType: "application/json; charset=utf-8",
+        data: {},
+        success: function(data) {
+            project_json = data["project"];
+            module_json = data["module"];
+        },
+        error: function (responseData, textStatus, errorThrown) {
+             //console.log('Error: '+errorThrown + ". Status: "+textStatus);
+             alert('Error: '+errorThrown + ". Status: "+textStatus);
+        }
+    }); 
+    
+    //define json
+    //var project_json = eval([{"project_name": "portal", "module_list": ["portal-app", "portal-img"],"svn_list" : ["portal"]},{"project_name": "billing", "module_list": ["billing-app"], "svn_list" : ["billing", "kiss"]}])
+    //var module_json = eval([{ "module_name" : "portal-app", "deploy_script" : "deploy_app_portal.sh", "host_list" : [  "QA-Test-App1-103-151",  "QA-Test-App2-103-152" ]},{"module_name" : "portal-img", "deploy_script" : "deploy_img_portal.sh", "host_list" : ["QA-Test-Pic1-103-135", "QA-Test-Pic2-103-136"]}, {"module_name" : "billing-app", "deploy_script" : "deploy_app_billing.sh", "host_list" : ["QA-Test-App1-103-151", "QA-Test-App2-103-152"]}])
+
+    //setting project_list option and get project_list
+    $.each( project_json, function(index, content){
+        $("#project_list").append("<option value='"+ content.project_name +"'>"+ content.project_name +"</option>");
+        project_list[content.project_name] = [content.module_list, content.svn_list];
+    }); 
+    
+    //setting project_list option and get project_list
+    $.each( module_json, function(index, content){
+        module_list[content.module_name] = [content.deploy_script, content.host_list];
+    });
+    
+    $("#project_list").change(function(){
+        project = $("#project_list").val();
+        
+        //setting module_list option
+        $("#module_list").empty();
+        for( i=0; i<project.length; i++ ){
+            project_name = project_list[project[i]][0]
+            $.each( project_name, function(index, content){
+                $("#module_list").append("<option value='"+ content +"'>"+ content +"</option>");
+            }); 
+        }
+    })
+    
+    $("#module_list").dblclick(function(){
+        module = $("#module_list").val();
+        
+        //add deploy_list
+        for( i=0; i<module.length; i++ ){
+            Add_li(module[i]);
+        }
+    })
+    
+    $("#project_add").click(function(){
+        project = $("#project_list").val()
+        if(project==null){
+            alert("请选择相应的项目！");
+        }else{
+            for( i=0; i<project.length; i++ ){
+                module = project_list[project[i]][0]
+                //add deploy_list
+                $.each( module, function(index, content){
+                    Add_li(content);
+                });    
+            }
+        }
+    })
+    
+    $("#module_add").click(function(){
+        module = $("#module_list").val();
+        if(module==null){
+            alert("请选择相应的模块！");
+        }else{
+            //add deploy_list
+            for( i=0; i<module.length; i++ ){
+                Add_li(module[i]);
+            }
+        }
+    })
+    
+    $("#ops_deploy").click(function(){
+        //get deploy_list id
+        deploy_list = panelList.children(".panel");
+        //console.log(deploy_list);
+        if(deploy_list.length==0){
+            alert("部署列表为空，请添加相应模块！");
+        }else{
+            requestList.empty();
+            //console.log("*********************************************************************************");
+            $.each( deploy_list, function(index, content){
+                //console.log(content);
+                //console.log(module_list);
+                module_name = content.id;
+                script_name = module_list[module_name][0];
+                host_list = module_list[module_name][1];
+                svn_info = $("input#"+module_name).val();
+                if(svn_info==""){
+                    svn_info="trunk";
+                }
+                deploy_post = {"deploy_module": module_name, "deploy_script": script_name, "deploy_host": host_list.join(","), "deploy_svn": svn_info};
+
+                //console.log(module_name);
+                //console.log(script_name);
+                //console.log(host_list.join(",")});
+                //console.log(svn_info);
+                //console.log(deploy_post);
+                $.ajax({
+                    type: 'POST',
+                    url: '/project/ops/deploy_json',
+                    data: JSON.stringify(deploy_post),
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: 'html',
+                    beforeSend: function() {
+                        //$("#loading").show();
+                        re='<li id="re_'+module_name+'" class="form-control list-group-item-info"><i class="fa fa-flag fa-fw"></i> ';
+                        re+=module_name+'模块：'
+                        re+='<img src="{{ url_for('static', filename = 'image/loading.gif') }}" width="3%" /></li>'
+                        requestList.append(re);
+                    }, 
+                    success: function(responseData, textStatus, jqXHR) {
+                        reData=JSON.parse(responseData)
+                        if(reData.error){
+                            li_class="list-group-item-danger"
+                            re='<i class="fa fa-exclamation-circle fa-fw"></i> '
+                            re+=reData.deploy_module+'模块：'
+                            re+=reData.error;
+                            console.log("error "+reData.deploy_module);
+                        }else{
+                            //console.log(typeof(reData));
+                            //console.log(reData);
+                            li_class="list-group-item-success"
+                            re='<i class="fa fa-check-circle fa-fw"></i> ';
+                            re+=reData.deploy_module+'模块：';
+                            re+=reData.deploy_info;
+                            console.log("success "+reData.deploy_module);
+                        }
+                        $("#re_"+reData.deploy_module).removeClass("list-group-item-info");
+                        $("#re_"+reData.deploy_module).addClass(li_class);
+                        $("#re_"+reData.deploy_module).html(re);
+                    },
+                    error: function (responseData, textStatus, errorThrown) {
+                        re='<li class="form-control list-group-item-danger"><i class="fa fa-check fa-fw"></i> ';
+                        re+='提交错误：'+errorThrown+'. Status: '+textStatus;
+                        re+='</li>';
+                        console.log('Error: '+errorThrown + ". Status: "+textStatus);
+                        //alert('Error: '+errorThrown + ". Status: "+textStatus);
+                    },
+                    complete: function() {
+                        //$("#loading_"+module_name).hide();
+                    }
+                });
+            }); 
+            //console.log("*********************************************************************************");
+        };
+    });
+
+});
+</script>
+{% endblock %}
